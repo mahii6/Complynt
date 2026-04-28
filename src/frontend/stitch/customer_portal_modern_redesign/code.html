@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Submit a Resolution Request | Complynt</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-background": "#191c1e",
+              "outline": "#727786",
+              "tertiary": "#a23d00",
+              "on-tertiary": "#ffffff",
+              "surface-container": "#eceef0",
+              "tertiary-fixed-dim": "#ffb596",
+              "tertiary-container": "#ca4e00",
+              "on-surface": "#191c1e",
+              "on-primary-fixed-variant": "#004396",
+              "primary": "#0058c2",
+              "on-tertiary-fixed-variant": "#7d2d00",
+              "outline-variant": "#c1c6d7",
+              "primary-container": "#0070f2",
+              "secondary": "#515f74",
+              "on-secondary-fixed-variant": "#3a485b",
+              "on-error-container": "#93000a",
+              "surface-container-highest": "#e0e3e5",
+              "on-secondary-fixed": "#0d1c2e",
+              "primary-fixed": "#d8e2ff",
+              "surface": "#f7f9fb",
+              "on-surface-variant": "#414754",
+              "error": "#ba1a1a",
+              "on-error": "#ffffff",
+              "secondary-fixed-dim": "#b9c7df",
+              "secondary-fixed": "#d5e3fc",
+              "secondary-container": "#d5e3fc",
+              "on-primary-container": "#fffeff",
+              "on-primary-fixed": "#001a42",
+              "surface-container-low": "#f2f4f6",
+              "inverse-surface": "#2d3133",
+              "surface-variant": "#e0e3e5",
+              "surface-tint": "#005ac4",
+              "on-tertiary-container": "#fffeff",
+              "primary-fixed-dim": "#aec6ff",
+              "on-tertiary-fixed": "#360f00",
+              "on-primary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "background": "#f7f9fb",
+              "on-secondary-container": "#57657a",
+              "tertiary-fixed": "#ffdbcd",
+              "inverse-primary": "#aec6ff",
+              "error-container": "#ffdad6",
+              "inverse-on-surface": "#eff1f3",
+              "surface-dim": "#d8dadc",
+              "on-secondary": "#ffffff",
+              "surface-bright": "#f7f9fb",
+              "surface-container-high": "#e6e8ea"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"],
+              "mono": ["IBM Plex Mono"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-sidebar {
+            background: rgba(0, 112, 242, 0.08);
+            backdrop-filter: blur(20px) saturate(150%);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #0058c2 0%, #0070f2 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 right-0 left-0 md:left-64 flex justify-between items-center px-8 z-40 h-16 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200/50">
+<div class="flex items-center gap-4">
+<span class="md:hidden font-headline text-xl font-bold tracking-tighter text-slate-900">Complynt</span>
+<div class="hidden md:flex items-center bg-surface-container-lowest px-4 py-2 rounded-lg border border-outline-variant/15 w-96">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full font-body" placeholder="Search case history..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="text-slate-500 hover:text-blue-600 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-slate-500 hover:text-blue-600 transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-outline-variant/30"></div>
+<div class="flex items-center gap-3">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold font-headline leading-none">Administrator</p>
+<p class="text-[10px] text-on-surface-variant font-mono uppercase tracking-widest">ID: 882-991</p>
+</div>
+<img alt="Administrator Profile" class="w-10 h-10 rounded-full border-2 border-primary/10" data-alt="Corporate headshot of a male executive" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfS5DUtme_g7dCSTh_21r-zqD4WTacedyuV0svsT_O8DRiQ0KLLU-hl9b_P3WxsY16yi1G0rbZIYVGI4JsS8nhu9R9hmGxHofCqvqC47aVHpQhUZ7TKsvKExwsEYg7-D22XiJWPfgBH9Imth0BR59HK0A9u5WzcX_s4CxWJsg5OSVZQjsZQl5wojhW__WFrPEQN8nymLZ4-9SUnlgj0k4V_RP21qlKZZlf2GjNtyuCBeV333yHIXL9rQHFdYJQVOJLtgOpbpi6p20"/>
+</div>
+</div>
+</header>
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full w-64 glass-sidebar hidden md:flex flex-col p-4 border-r border-blue-200/15 z-50">
+<div class="mb-10 px-4">
+<h1 class="text-xl font-bold tracking-tighter text-slate-900 font-headline">Complynt</h1>
+<p class="text-[10px] text-primary font-mono tracking-widest uppercase mt-1">Enterprise Tier</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-blue-50/50 rounded-lg transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-blue-50/50 rounded-lg transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">verified_user</span>
+                Compliance
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-blue-50/50 rounded-lg transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+                Audit Logs
+            </a>
+<!-- Active State Navigation -->
+<a class="relative bg-blue-600/10 text-blue-700 flex items-center gap-3 px-4 py-3 rounded-lg font-bold text-sm before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:bg-blue-600 before:rounded-r-md" href="#">
+<span class="material-symbols-outlined">assessment</span>
+                Risk Assessment
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-blue-50/50 rounded-lg transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-blue-50/50 rounded-lg transition-all duration-200 font-medium text-sm" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto p-4 bg-white/40 rounded-xl border border-white/60">
+<p class="text-[11px] font-mono text-on-surface-variant mb-2">SESSION ID: {{DATA:SCREEN:SCREEN_8}}</p>
+<button class="w-full primary-gradient text-white font-bold py-2.5 rounded-lg text-sm shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Report
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 pt-24 pb-12 px-8 min-h-screen">
+<div class="max-w-4xl mx-auto">
+<!-- Header Section -->
+<div class="text-center mb-12">
+<h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-background mb-4">Submit a Resolution Request</h2>
+<p class="text-on-surface-variant max-w-lg mx-auto leading-relaxed">Please provide the necessary compliance details to initiate the formal investigation process. All data entered is system-audited.</p>
+</div>
+<!-- Modern Step Indicator -->
+<div class="mb-12">
+<div class="flex items-center justify-between max-w-2xl mx-auto relative">
+<!-- Progress Line -->
+<div class="absolute top-1/2 left-0 w-full h-[2px] bg-surface-container-highest -translate-y-1/2 z-0"></div>
+<div class="absolute top-1/2 left-0 w-1/3 h-[2px] bg-primary -translate-y-1/2 z-0"></div>
+<!-- Step 1 (Active) -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-10 h-10 rounded-full primary-gradient text-white flex items-center justify-center shadow-lg shadow-primary/30">
+<span class="material-symbols-outlined text-lg">description</span>
+</div>
+<span class="absolute -bottom-7 text-[10px] font-bold font-headline uppercase tracking-wider text-primary whitespace-nowrap">Context</span>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest border-2 border-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">fact_check</span>
+</div>
+<span class="absolute -bottom-7 text-[10px] font-bold font-headline uppercase tracking-wider text-on-surface-variant whitespace-nowrap">Evidence</span>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest border-2 border-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">send</span>
+</div>
+<span class="absolute -bottom-7 text-[10px] font-bold font-headline uppercase tracking-wider text-on-surface-variant whitespace-nowrap">Review</span>
+</div>
+</div>
+</div>
+<!-- Focused Central Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_12px_40px_rgba(0,88,194,0.06)] border border-outline-variant/10 overflow-hidden">
+<div class="bg-surface-container-low px-8 py-4 border-b border-outline-variant/15 flex justify-between items-center">
+<span class="text-xs font-bold font-headline uppercase tracking-widest text-on-surface-variant">Module 01: Transaction Metadata</span>
+<span class="font-mono text-[10px] text-primary bg-primary/10 px-2 py-1 rounded">AUTH_ID: 8XJ-92</span>
+</div>
+<div class="p-8">
+<form class="space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Input Field -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-on-surface-variant flex items-center gap-2">
+                                    Entity Name
+                                    <span class="material-symbols-outlined text-[14px] text-outline">info</span>
+</label>
+<input class="w-full bg-surface-container-lowest border-outline-variant/30 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 outline-none placeholder:text-outline/50 font-body" placeholder="e.g. Global Tech Partners" type="text"/>
+</div>
+<!-- Technical Input (Mono Font) -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-on-surface-variant">Registration Code</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-outline-variant/30 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 outline-none font-mono text-sm tracking-widest" placeholder="CR-000-000" type="text"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-lg">vpn_key</span>
+</div>
+</div>
+<!-- Dropdown Select -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-on-surface-variant">Resolution Category</label>
+<select class="w-full bg-surface-container-lowest border-outline-variant/30 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 outline-none font-body text-sm appearance-none">
+<option>Standard Compliance Review</option>
+<option>Escalated Risk Mitigation</option>
+<option>Third-Party Audit Request</option>
+<option>Regulatory Clarification</option>
+</select>
+</div>
+<!-- Date Picker Mock -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-on-surface-variant">Occurrence Date</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border-outline-variant/30 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 outline-none font-body text-sm" type="date"/>
+</div>
+</div>
+</div>
+<!-- Wide Text Area -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-on-surface-variant">Contextual Summary</label>
+<textarea class="w-full bg-surface-container-lowest border-outline-variant/30 rounded-lg py-3 px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 outline-none placeholder:text-outline/50 font-body text-sm" placeholder="Briefly describe the compliance deviation or requested clarification..." rows="4"></textarea>
+</div>
+<!-- Bento Style File Upload -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="md:col-span-2 border-2 border-dashed border-outline-variant/40 rounded-xl p-8 flex flex-col items-center justify-center bg-surface-container/30 hover:bg-surface-container/50 transition-colors group cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary">upload_file</span>
+</div>
+<p class="text-sm font-bold text-on-surface">Drop supporting documents</p>
+<p class="text-[10px] text-on-surface-variant mt-1 font-mono">MAX 50MB (PDF, XLSX)</p>
+</div>
+<div class="bg-primary/5 rounded-xl p-6 flex flex-col justify-between border border-primary/10">
+<div>
+<span class="material-symbols-outlined text-primary mb-2">security</span>
+<h4 class="text-xs font-bold text-primary uppercase tracking-wide">Secure Channel</h4>
+<p class="text-[11px] text-on-surface-variant leading-relaxed mt-2">All uploads are encrypted using AES-256 standards before archival.</p>
+</div>
+<a class="text-[10px] font-bold text-primary hover:underline flex items-center gap-1" href="#">
+                                    Security Policy
+                                    <span class="material-symbols-outlined text-[12px]">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="flex items-center justify-between pt-6 border-t border-outline-variant/10 mt-8">
+<button class="px-6 py-2.5 rounded-lg border border-outline-variant/30 text-sm font-semibold text-on-surface-variant hover:bg-surface-container transition-colors flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                                Save as Draft
+                            </button>
+<button class="primary-gradient px-10 py-2.5 rounded-lg text-sm font-bold text-white shadow-lg shadow-primary/30 flex items-center gap-2" type="submit">
+                                Continue to Evidence
+                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+<!-- Warning Information -->
+<div class="mt-8 flex gap-4 p-4 bg-tertiary-fixed rounded-xl border border-tertiary/10">
+<span class="material-symbols-outlined text-tertiary">warning</span>
+<div class="space-y-1">
+<p class="text-xs font-bold text-tertiary-container uppercase tracking-tight">Compliance Notice</p>
+<p class="text-xs text-on-tertiary-fixed-variant leading-relaxed">Ensure all entity names match the legal documentation exactly. Discrepancies may delay resolution by up to 15 business days as per Section 4.2 of the Enterprise Agreement.</p>
+</div>
+</div>
+<!-- Bottom Spacer -->
+<div class="h-12"></div>
+</div>
+</main>
+<!-- Mobile Navigation Shell -->
+<nav class="fixed bottom-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md flex md:hidden items-center justify-around px-4 z-50 border-t border-slate-200/50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg">dashboard</span>
+<span class="text-[10px] font-bold">Dash</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-lg">assignment_add</span>
+<span class="text-[10px] font-bold">New</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg">history</span>
+<span class="text-[10px] font-bold">History</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-lg">account_circle</span>
+<span class="text-[10px] font-bold">Profile</span>
+</button>
+</nav>
+</body></html>

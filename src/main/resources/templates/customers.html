@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Customer 360 | Complynt')}"></head>
+<body class="bg-surface font-body text-on-surface antialiased">
+    <main class="ml-64 pt-20 p-8 min-h-screen">
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold font-headline tracking-tight text-on-background">Customer 360° Engine</h1>
+            <p class="text-on-surface-variant text-sm mt-1 italic opacity-80">Unified situational awareness of customer accounts and managed events.</p>
+        </div>
+
+        <div id="customer-body">
+            <div class="flex items-center justify-center h-[50vh]">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <span class="ml-4 text-on-surface-variant font-bold uppercase tracking-widest text-sm">Aggregating Entity Profiles...</span>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <script>
+    initLayout('customers');
+
+    function passbookFromCust(cust) {
+        var name = cust.fullName || '—';
+        var email = cust.email || '—';
+        var phone = cust.phone || '—';
+        var acct = cust.accountNumber || '—';
+        var bank = cust.bankName || 'Somaiya Demo Bank Ltd.';
+        var branch = cust.branchName || '—';
+        var ifsc = cust.ifscCode || '—';
+        var accType = cust.accountType || 'Savings Bank';
+        var bal = cust.availableBalanceDisplay || '—';
+        var printed = cust.passbookLastPrinted || '—';
+        var decor = cust.passbookDecorImageUrl || '';
+        var custNo = cust.customerNumber || '—';
+        var holes = '';
+        for (var h = 0; h < 6; h++) holes += '<div class="passbook-hole"></div>';
+        var decorImg = decor
+            ? '<img src="' + decor + '" alt="" class="h-14 w-24 object-cover rounded border border-[#7a1f32]/25 flex-shrink-0 shadow-sm" onerror="this.style.display=\'none\'"/>'
+            : '';
+        return '<div class="rounded-xl overflow-hidden border border-outline-variant/20 shadow-lg">' +
+            '<div class="px-3 py-2 bg-[#5c1624] text-[#f5e6d8] text-[9px] font-bold uppercase tracking-[0.15em] text-center font-mono">Savings passbook — demo data (not transactional)</div>' +
+            '<div class="passbook-folio flex text-left">' +
+            '<div class="passbook-binding flex-shrink-0 flex flex-col items-center justify-center gap-2 py-5">' + holes + '</div>' +
+            '<div class="flex-1 passbook-lines p-4 pl-3 relative min-w-0">' +
+            '<div class="passbook-watermark">SPECIMEN</div>' +
+            '<div class="relative z-[1] flex flex-wrap gap-3 border-b border-[#3d2a1a]/12 pb-3 mb-3">' +
+            '<img src="/passbook-bank-emblem.svg" width="56" height="56" class="flex-shrink-0 drop-shadow" alt="Bank"/>' + decorImg +
+            '<div class="min-w-0 flex-1"><p class="font-headline text-[#1a0f14] font-extrabold text-sm leading-snug tracking-tight">' + bank + '</p>' +
+            '<p class="text-[10px] text-[#4a3f35] mt-1 leading-snug">' + branch + '</p></div></div>' +
+            '<div class="relative z-[1] space-y-2.5 text-[11px]">' +
+            '<div class="flex justify-between gap-2 border-b border-dotted border-[#3d2a1a]/15 pb-1.5"><span class="text-[#5c4d42] font-bold uppercase tracking-wider text-[9px]">Account holder</span>' +
+            '<span class="font-mono font-bold text-[#1a0f14] text-right">' + name + '</span></div>' +
+            '<div class="flex justify-between gap-2 border-b border-dotted border-[#3d2a1a]/15 pb-1.5"><span class="text-[#5c4d42] font-bold uppercase tracking-wider text-[9px]">Cust. ID</span>' +
+            '<span class="font-mono text-[#1a0f14] text-right">' + custNo + '</span></div>' +
+            '<div class="flex justify-between gap-2 border-b border-dotted border-[#3d2a1a]/15 pb-1.5"><span class="text-[#5c4d42] font-bold uppercase tracking-wider text-[9px]">A/c no.</span>' +
+            '<span class="font-mono tracking-tight text-[#1a0f14] text-right">' + acct + '</span></div>' +
+            '<div class="flex justify-between gap-2 border-b border-dotted border-[#3d2a1a]/15 pb-1.5"><span class="text-[#5c4d42] font-bold uppercase tracking-wider text-[9px]">IFSC</span>' +
+            '<span class="font-mono text-[#1a0f14] text-right">' + ifsc + '</span></div>' +
+            '<div class="flex justify-between gap-2 border-b border-dotted border-[#3d2a1a]/15 pb-1.5"><span class="text-[#5c4d42] font-bold uppercase tracking-wider text-[9px]">Scheme</span>' +
+            '<span class="text-[#1a0f14] text-right text-[10px] leading-tight">' + accType + '</span></div>' +
+            '<div class="flex justify-between gap-2 border-b border-dotted border-[#3d2a1a]/15 pb-1.5"><span class="text-[#5c4d42] font-bold uppercase tracking-wider text-[9px]">Phone / Email</span>' +
+            '<span class="text-[#1a0f14] text-right text-[10px] leading-tight break-all">' + phone + '<br/><span class="font-mono text-[10px]">' + email + '</span></span></div>' +
+            '<div class="flex justify-between gap-2 items-end pt-1"><span class="text-[#5c4d42] font-bold uppercase tracking-wider text-[9px]">Balance (as per CBS demo)</span>' +
+            '<span class="font-mono font-bold text-[#0d4f2d] text-sm">' + bal + '</span></div>' +
+            '<div class="flex justify-between gap-2 text-[9px] text-[#6b5d52] pt-1"><span>Last passbook line printed</span><span class="font-mono">' + printed + '</span></div>' +
+            '</div></div></div></div>';
+    }
+
+    async function loadCustomers() {
+        const el = document.getElementById('customer-body');
+        try {
+            const res = await api.getCustomers();
+            el.innerHTML = `
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                    <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sm text-primary">group</span>
+                        <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Entity Registry</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="bg-surface-container-low/30 border-b border-outline-variant/10">
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Protocol ID</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Managed Entity</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Contact Channel</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Phone Index</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Account Linking</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/5">
+                                ${res.map(c => `
+                                    <tr onclick="viewCustomer(${c.id})" class="hover:bg-primary/[0.02] cursor-pointer transition-colors group">
+                                        <td class="px-6 py-4">
+                                            <span class="data-font text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/5 rounded border border-primary/10 group-hover:bg-primary group-hover:text-white transition-all">#${c.customerNumber}</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm font-bold text-on-surface transition-colors">${c.fullName}</td>
+                                        <td class="px-6 py-4 text-xs text-on-surface-variant font-mono italic">${c.email}</td>
+                                        <td class="px-6 py-4 text-xs font-bold text-on-surface-variant font-mono italic">${c.phone}</td>
+                                        <td class="px-6 py-4">
+                                            ${c.accountNumber ? `
+                                                <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-bold font-mono rounded">REF_${c.accountNumber}</span>
+                                            ` : `
+                                                <span class="text-[10px] font-bold text-on-surface-variant/30 uppercase tracking-widest">UNLINKED</span>
+                                            `}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        } catch(err) {
+            el.innerHTML = `<div class="p-8 bg-error/5 text-error font-bold uppercase tracking-widest text-xs rounded-xl border border-error/10">Registry Access Fault: ${err.message}</div>`;
+        }
+    }
+
+    async function viewCustomer(id) {
+        const el = document.getElementById('customer-body');
+        el.innerHTML = '<div class="flex items-center justify-center p-24"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>';
+        try {
+            const cust = await api.getCustomer(id);
+            const complaints = await api.getCustomerComplaints(id);
+
+            el.innerHTML = `
+                <button onclick="loadCustomers()" class="mb-6 flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest hover:text-primary transition-colors">
+                    <span class="material-symbols-outlined text-sm">arrow_back</span>
+                    Back to Registry
+                </button>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left: Passbook + quick facts -->
+                    <div class="space-y-8">
+                        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                            <div class="px-4 py-3 bg-surface-container-low/50 border-b border-outline-variant/10 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm text-primary">menu_book</span>
+                                <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Passbook snapshot</h2>
+                            </div>
+                            <div class="p-4">
+                                ${passbookFromCust(cust)}
+                                <div class="mt-4 p-4 rounded-lg bg-surface-container-low/50 border border-outline-variant/10 space-y-3">
+                                    ${profileAttr('Email', cust.email, 'mail')}
+                                    ${profileAttr('Managed cases', complaints.length + ' open / total in view', 'analytics')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: History Ledger -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                            <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10 flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sm text-primary">history</span>
+                                <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Associated Case History</h2>
+                            </div>
+                            
+                            ${complaints.length ? `
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left">
+                                        <thead>
+                                            <tr class="bg-surface-container-low/30 border-b border-outline-variant/10">
+                                                <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Case ID</th>
+                                                <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Narrative</th>
+                                                <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Product</th>
+                                                <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Tier</th>
+                                                <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-outline-variant/5">
+                                            ${complaints.map(c => `
+                                                <tr onclick="location.href='/complaint-detail?id=${c.id}'" class="hover:bg-primary/[0.02] cursor-pointer transition-colors group">
+                                                    <td class="px-6 py-4">
+                                                        <span class="data-font text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/5 rounded border border-primary/10">#${c.ticketNumber || 'N/A'}</span>
+                                                    </td>
+                                                    <td class="px-6 py-4 text-sm font-bold text-on-surface group-hover:text-primary transition-colors">${c.title}</td>
+                                                    <td class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">${productLabel(c.productType)}</td>
+                                                    <td class="px-6 py-4">${severityBadge(c.severity)}</td>
+                                                    <td class="px-6 py-4">${statusBadge(c.status)}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ` : `
+                                <div class="p-12 text-center text-on-surface-variant italic">No associated managed events recorded for this entity.</div>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch(err) {
+            el.innerHTML = `<div class="p-8 bg-error/5 text-error font-bold uppercase tracking-widest text-xs">Profile Synchronization Fault: ${err.message}</div>`;
+        }
+    }
+
+    function profileAttr(label, val, icon) {
+        return `
+            <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-outline-variant text-[18px] mt-0.5">${icon}</span>
+                <div>
+                    <label class="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest block">${label}</label>
+                    <span class="text-sm font-bold text-on-surface italic">${val}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    loadCustomers();
+    </script>
+</body>
+</html>

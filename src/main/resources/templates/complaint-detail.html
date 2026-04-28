@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Case Detail | Complynt')}"></head>
+<body class="bg-surface font-body text-on-surface antialiased">
+    <main class="ml-64 pt-20 p-8 min-h-screen">
+        <div id="detail-body">
+            <div class="flex items-center justify-center h-[50vh]">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <span class="ml-4 text-on-surface-variant font-bold uppercase tracking-widest text-sm">Loading Case Folder...</span>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const compId = urlParams.get('id');
+    initLayout('complaints');
+
+    function formatAuditLine(a) {
+        let s = String(a.action || '');
+        if (a.oldValue != null || a.newValue != null) {
+            s += ' — ' + (a.oldValue || '—') + ' → ' + (a.newValue || '—');
+        }
+        return s;
+    }
+
+    function passbookHtml(c) {
+        const cu = c.customer;
+        const name = (cu && cu.fullName) ? cu.fullName : (c.clientDisplayName || 'Unknown');
+        const email = (cu && cu.email) ? cu.email : (c.contactEmail || '—');
+        const phone = (cu && cu.phone) ? cu.phone : (c.customerPhone || '—');
+        const acct = (cu && cu.accountNumber) ? cu.accountNumber : '—';
+        const bank = (cu && cu.bankName) ? cu.bankName : 'Somaiya Demo Bank Ltd.';
+        const ifsc = (cu && cu.ifscCode) ? cu.ifscCode : '—';
+        const accType = (cu && cu.accountType) ? cu.accountType : 'Savings Bank';
+        const bal = (cu && cu.availableBalanceDisplay) ? cu.availableBalanceDisplay : '—';
+        const custNo = (cu && cu.customerNumber) ? cu.customerNumber : '—';
+
+        return `
+        <div class="space-y-6">
+            <div>
+                <dt class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-3 border-b border-outline-variant/10 pb-1">Account Identity</dt>
+                <div class="space-y-3">
+                    ${metadataItem('Bank name', bank, 'account_balance')}
+                    ${metadataItem('Account Number', acct, 'badge')}
+                    ${metadataItem('Customer ID', custNo, 'fingerprint')}
+                    ${metadataItem('IFSC Code', ifsc, 'pin')}
+                    ${metadataItem('Account Type', accType, 'account_tree')}
+                </div>
+            </div>
+            <div>
+                <dt class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-3 border-b border-outline-variant/10 pb-1">Profile & Contact</dt>
+                <div class="space-y-3">
+                    ${metadataItem('Full Name', name, 'person')}
+                    ${metadataItem('Phone Number', phone, 'call')}
+                    ${metadataItem('Email Address', email, 'mail')}
+                </div>
+            </div>
+            <div class="pt-4 border-t border-outline-variant/10">
+                <div class="bg-primary/5 rounded-lg p-3">
+                    ${metadataItem('Available Balance', bal, 'payments')}
+                </div>
+            </div>
+        </div>
+        `;
+    }
+
+    function buildTimeline(c) {
+        const items = [];
+        (c.auditLogs || []).forEach(function (a) {
+            items.push({
+                type: 'AUDIT',
+                createdAt: a.timestamp,
+                content: formatAuditLine(a),
+                actor: a.performedBy || 'System'
+            });
+        });
+        (c.comments || []).forEach(function (cm) {
+            items.push({
+                type: cm.isInternal ? 'INTERNAL' : 'COMMENT',
+                createdAt: cm.createdAt,
+                content: cm.content,
+                actor: (cm.authorName || '') + (cm.authorRole ? ' (' + cm.authorRole + ')' : '')
+            });
+        });
+        items.sort(function (a, b) { return new Date(a.createdAt) - new Date(b.createdAt); });
+        return items;
+    }
+
+    async function loadDetail() {
+        var el = document.getElementById('detail-body');
+        if (!compId) {
+            el.innerHTML = '<div class="p-8 bg-error/10 text-error rounded-xl font-bold">Error: No complaint ID provided.</div>';
+            return;
+        }
+
+        try {
+            const results = await Promise.all([api.getComplaint(compId), api.getAgents()]);
+            const c = results[0];
+            const agents = results[1] || [];
+            const timeline = buildTimeline(c);
+            const assignOpts = agents.map(function (ag) {
+                const sel = c.assignedAgent && c.assignedAgent.id === ag.id ? ' selected' : '';
+                return '<option value="' + ag.id + '"' + sel + '>' + ag.name + ' (' + (ag.role || 'AGENT') + ')</option>';
+            }).join('');
+
+            el.innerHTML = `
+                <!-- Top Header: Case Identity -->
+                <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold font-mono rounded">#${c.ticketNumber}</span>
+                            ${statusBadge(c.status)}
+                        </div>
+                        <h1 class="text-3xl font-extrabold font-headline tracking-tight text-on-background">${c.title}</h1>
+                        <p class="text-on-surface-variant text-sm mt-1">Managed Entity: <span class="font-bold text-on-surface">${c.clientDisplayName || (c.customer ? c.customer.fullName : 'Unknown')}</span> | Channel: <span class="uppercase font-mono text-[10px] bg-surface-container px-1.5 py-0.5 rounded">${c.channel || 'DIRECT'}</span></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button class="px-6 py-2.5 rounded-lg border border-outline-variant text-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors" onclick="window.history.back()">Back to Ledger</button>
+                        <button class="primary-gradient px-8 py-2.5 rounded-lg text-xs font-bold text-white shadow-lg shadow-primary/20 flex items-center gap-2 transition-all active:scale-95" onclick="toggleActionPanel()">
+                            Account Actions
+                            <span class="material-symbols-outlined text-sm">expand_more</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Right/Main Column: Detailed Documentation -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <!-- Primary Folder: Description -->
+                        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                            <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10 flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sm text-primary">description</span>
+                                <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Complaint Narrative</h2>
+                            </div>
+                            <div class="p-6">
+                                <p class="text-sm leading-relaxed text-on-surface-variant whitespace-pre-wrap">${c.description}</p>
+                                ${(c.attachmentUrls && c.attachmentUrls.length) ? `
+                                <div class="mt-6 pt-6 border-t border-outline-variant/10">
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">Supporting attachments</p>
+                                    <div class="flex flex-wrap gap-3">
+                                        ${c.attachmentUrls.map(function (u) {
+                                            return '<a href="' + u + '" target="_blank" rel="noopener" class="block"><img src="' + u + '" class="max-h-48 rounded-lg border border-outline-variant/20 object-cover max-w-full" alt="Attachment" onerror="this.style.display=\'none\'"/></a>';
+                                        }).join('')}
+                                    </div>
+                                </div>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Technical Ledger: Details -->
+                        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                            <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10 flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sm text-primary">terminal</span>
+                                <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Technical Metadata</h2>
+                            </div>
+                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
+                                ${metadataItem('Product Category', productLabel(c.productType), 'inventory_2')}
+                                ${metadataItem('Issue Classification', (c.issueType || 'OTHER').replace(/_/g, ' '), 'category')}
+                                ${metadataItem('Severity Tier', severityBadge(c.severity), 'priority_high')}
+                                ${metadataItem('Filing Date', formatDate(c.createdAt), 'event')}
+                                ${metadataItem('Last Activity', formatDate(c.updatedAt), 'update')}
+                                ${metadataItem('SLA Status', slaBadge(c.sla || c.slaStatus), 'timer')}
+                            </div>
+                        </div>
+
+                        <!-- Audit Trail: Timeline -->
+                        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                            <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10 flex items-center gap-3">
+                                <span class="material-symbols-outlined text-sm text-primary">history</span>
+                                <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Case Audit Trail</h2>
+                            </div>
+                            <div class="p-6 space-y-6">
+                                ${timeline.length > 0 ? timeline.map((t, idx) => `
+                                    <div class="relative pl-8 pb-6 last:pb-0">
+                                        ${idx < timeline.length - 1 ? '<div class="absolute left-3 top-2 bottom-0 w-[1px] bg-outline-variant/30"></div>' : ''}
+                                        <div class="absolute left-1.5 top-1.5 w-3 h-3 rounded-full border-2 border-primary bg-surface-container-lowest"></div>
+                                        <div class="flex flex-col gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-[10px] font-bold font-mono text-primary bg-primary/5 px-2 py-0.5 rounded uppercase tracking-tighter">${t.type || 'LOG'}</span>
+                                                <span class="text-[10px] text-on-surface-variant uppercase font-bold tracking-tight">${formatDate(t.createdAt)}</span>
+                                            </div>
+                                            <p class="text-sm text-on-surface mt-1 whitespace-pre-wrap">${t.content}</p>
+                                            <span class="text-[10px] text-on-surface-variant italic">— ${t.actor || 'System'}</span>
+                                        </div>
+                                    </div>
+                                `).join('') : '<p class="text-xs text-on-surface-variant italic">No audit events recorded.</p>'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Left/Sidebar Column: Entity & Actions -->
+                    <div class="space-y-8">
+                        <!-- Entity Context -->
+                        <div class="bg-surface-container rounded-xl shadow-md border border-outline-variant/20 overflow-hidden">
+                            <div class="px-6 py-4 bg-surface-container-highest/30 border-b border-outline-variant/10 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm text-primary">person</span>
+                                <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Customer Profile</h2>
+                            </div>
+                            <div class="p-4">
+                                ${passbookHtml(c)}
+                                <button class="w-full mt-4 py-2.5 rounded-lg border border-outline-variant/30 text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant hover:bg-surface-container transition-all" onclick="window.location.href='/customers'">Open Customer 360 registry</button>
+                            </div>
+                        </div>
+
+                        <!-- Rapid Actions -->
+                        <div id="action-panel" class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                            <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10">
+                                <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Workflow Management</h2>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div>
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Update Stage</label>
+                                    <select id="status-update" class="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                                        <option value="OPEN" ${c.status === 'OPEN' ? 'selected' : ''}>Open (New)</option>
+                                        <option value="IN_PROGRESS" ${c.status === 'IN_PROGRESS' ? 'selected' : ''}>In Progress</option>
+                                        <option value="RESOLVED" ${c.status === 'RESOLVED' ? 'selected' : ''}>Mark Resolved</option>
+                                        <option value="ESCALATED" ${c.status === 'ESCALATED' ? 'selected' : ''}>Escalate Case</option>
+                                        <option value="CLOSED" ${c.status === 'CLOSED' ? 'selected' : ''}>Archive / Close</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Assign / escalate to agent</label>
+                                    <select id="assign-agent" class="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                                        <option value="">— No reassignment —</option>
+                                        ${assignOpts}
+                                    </select>
+                                    <p class="text-[9px] text-on-surface-variant mt-1">Pick the agent who will own this escalation. Use the button below for a one-step hand-off (status → ESCALATED + assign + audit + email to agent).</p>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-2">Internal Note</label>
+                                    <textarea id="note-content" class="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2.5 px-3 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all min-h-[100px]" placeholder="Summary of investigation..."></textarea>
+                                </div>
+                                <div class="rounded-lg border border-outline-variant/15 bg-surface-container-low/30 p-3 space-y-2">
+                                    <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-on-surface">
+                                        <input type="checkbox" id="sync-notify-customer" class="rounded border-outline-variant"/>
+                                        Email customer after sync
+                                    </label>
+                                    <p class="text-[9px] text-on-surface-variant">Runs only when you click Synchronize Changes. Uses the case email or customer email; if none is on file, messages go to the configured fallback inbox.</p>
+                                    <div>
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-1">Customer message</label>
+                                        <textarea id="sync-customer-message" class="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2 px-3 text-sm min-h-[72px]" placeholder="Message sent to the customer if the box above is checked..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-1">Notify channel</label>
+                                        <select id="sync-notify-channel" class="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2 px-3 text-sm">
+                                            <option value="AUTO" selected>Same as case (recommended)</option>
+                                            <option value="EMAIL">Email only</option>
+                                            <option value="WHATSAPP">WhatsApp only</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button class="w-full primary-gradient text-white py-3 rounded-lg text-sm font-bold shadow-lg shadow-primary/20 hover:opacity-90 active:scale-95 transition-all flex justify-center items-center gap-2" onclick="commitUpdate()">
+                                    <span class="material-symbols-outlined text-sm">database</span>
+                                    Synchronize Changes
+                                </button>
+                                <button type="button" class="w-full mt-2 py-3 rounded-lg border-2 border-[#7a1f32] bg-[#faf6ed] text-[#5c1624] text-xs font-extrabold uppercase tracking-widest hover:bg-[#f0e8d8] transition-all flex justify-center items-center gap-2" onclick="escalateHandoff()">
+                                    <span class="material-symbols-outlined text-sm">upgrade</span>
+                                    Escalate &amp; hand off to selected agent
+                                </button>
+                                <button class="w-full mt-2 py-2 rounded-lg border border-primary/20 text-[10px] font-extrabold uppercase tracking-widest text-primary hover:bg-primary/5 transition-all" onclick="runAi()">Run AI Classification</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                            <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10">
+                                <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Contact customer</h2>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                <p class="text-[10px] text-on-surface-variant leading-relaxed">Default matches how the customer contacted you (email vs WhatsApp). If there is no email on the complaint or customer, the message is sent to the ops fallback address configured on the server.</p>
+                                <div>
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-1">Channel</label>
+                                    <select id="notify-channel" class="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2 px-3 text-sm">
+                                        <option value="AUTO" selected>Same as case (recommended)</option>
+                                        <option value="EMAIL">Email only</option>
+                                        <option value="WHATSAPP">WhatsApp only</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-1">Message type</label>
+                                    <select id="notify-type" class="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2 px-3 text-sm">
+                                        <option value="INFO_REQUEST">Ask for more information</option>
+                                        <option value="RESOLUTION">Resolution / closure update</option>
+                                        <option value="OTHER">General message</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-1">Message</label>
+                                    <textarea id="notify-body" class="w-full bg-surface-container border border-outline-variant/20 rounded-lg py-2 px-3 text-sm min-h-[100px]" placeholder="Your message to the customer..."></textarea>
+                                </div>
+                                <button type="button" class="w-full py-2.5 rounded-lg bg-secondary text-white text-xs font-bold hover:opacity-90 flex items-center justify-center gap-2" onclick="sendCustomerNotify()">
+                                    <span class="material-symbols-outlined text-sm">send</span> Send to customer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (err) {
+            el.innerHTML = `<div class="p-8 bg-error/10 text-error rounded-xl font-bold">Failed to synchronize case data: ${err.message}</div>`;
+        }
+    }
+
+    function metadataItem(label, val, icon) {
+        return `
+            <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-outline-variant text-lg mt-0.5">${icon}</span>
+                <div>
+                    <dt class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">${label}</dt>
+                    <dd class="text-sm font-bold text-on-surface mt-0.5">${val}</dd>
+                </div>
+            </div>
+        `;
+    }
+
+    async function escalateHandoff() {
+        var assignEl = document.getElementById('assign-agent');
+        var agentId = assignEl && assignEl.value ? parseInt(assignEl.value, 10) : NaN;
+        if (!agentId) {
+            showToast('Select an agent in “Assign / escalate to agent”, then use this button.', 'error');
+            return;
+        }
+        var note = document.getElementById('note-content') ? document.getElementById('note-content').value.trim() : '';
+        try {
+            await api.escalateComplaint(compId, {
+                targetAgentId: agentId,
+                internalNote: note || null,
+                notifyAssignedAgent: true
+            });
+            showToast('Case escalated, reassigned, and the agent was emailed (if SMTP is configured).', 'success');
+            setTimeout(function () { loadDetail(); }, 800);
+        } catch (e) {
+            showToast('Escalation failed: ' + (e.message || e), 'error');
+        }
+    }
+
+    async function commitUpdate() {
+        const nextStatus = document.getElementById('status-update').value;
+        const note = document.getElementById('note-content').value.trim();
+        const assignEl = document.getElementById('assign-agent');
+        const assignRaw = assignEl && assignEl.value ? assignEl.value : '';
+        const assignToAgentId = assignRaw ? parseInt(assignRaw, 10) : null;
+        const notifyAfter = document.getElementById('sync-notify-customer') && document.getElementById('sync-notify-customer').checked;
+        const customerMsg = document.getElementById('sync-customer-message') ? document.getElementById('sync-customer-message').value.trim() : '';
+        const notifyChannel = document.getElementById('sync-notify-channel') ? document.getElementById('sync-notify-channel').value : 'AUTO';
+
+        if (nextStatus === 'RESOLVED' && !note) {
+            showToast('Investigation summary is mandatory for resolution states.', 'error');
+            return;
+        }
+        if (notifyAfter && !customerMsg) {
+            showToast('Enter a customer message or uncheck “Email customer after sync”.', 'error');
+            return;
+        }
+
+        try {
+            const payload = {
+                status: nextStatus,
+                note: note || null,
+                assignToAgentId: assignToAgentId,
+                notifyCustomer: !!notifyAfter,
+                customerNotifyMessage: notifyAfter ? customerMsg : null,
+                notifyChannel: notifyAfter ? notifyChannel : null
+            };
+            await api.updateStatus(compId, payload);
+            showToast('Case synchronized successfully. Ledger updated.', 'success');
+            if (document.getElementById('sync-customer-message')) document.getElementById('sync-customer-message').value = '';
+            if (document.getElementById('sync-notify-customer')) document.getElementById('sync-notify-customer').checked = false;
+            setTimeout(() => loadDetail(), 1000);
+        } catch (err) {
+            showToast('Synchronization error: ' + err.message, 'error');
+        }
+    }
+
+    async function runAi() {
+        showToast('Running AI Analysis...', 'info');
+        try {
+            await api.classifyComplaint(compId);
+            showToast('Analysis complete. Classification updated.', 'success');
+            setTimeout(() => loadDetail(), 1000);
+        } catch(e) { showToast(e.message, 'error'); }
+    }
+
+    async function sendCustomerNotify() {
+        const channel = document.getElementById('notify-channel').value || 'AUTO';
+        const messageType = document.getElementById('notify-type').value;
+        const message = document.getElementById('notify-body').value.trim();
+        if (!message) {
+            showToast('Enter a message for the customer.', 'error');
+            return;
+        }
+        try {
+            await api.notifyCustomer(compId, { channel: channel, messageType: messageType, message: message });
+            showToast('Notification sent.', 'success');
+            document.getElementById('notify-body').value = '';
+            setTimeout(() => loadDetail(), 800);
+        } catch (e) {
+            showToast(e.message || 'Send failed', 'error');
+        }
+    }
+
+    function toggleActionPanel() {
+        const panel = document.getElementById('action-panel');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        panel.classList.add('ring-2', 'ring-primary/50');
+        setTimeout(() => panel.classList.remove('ring-2', 'ring-primary/50'), 2000);
+    }
+
+    loadDetail();
+    </script>
+</body>
+</html>

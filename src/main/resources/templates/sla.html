@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('SLA Monitor | Complynt')}"></head>
+<body class="bg-surface font-body text-on-surface antialiased">
+    <main class="ml-64 pt-20 p-8 min-h-screen">
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold font-headline tracking-tight text-on-background">SLA Performance Registry</h1>
+            <p class="text-on-surface-variant text-sm mt-1 italic opacity-80">Monitoring response velocity and contractual obligation adherence.</p>
+        </div>
+
+        <div id="sla-body">
+            <div class="flex items-center justify-center h-[50vh]">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <span class="ml-4 text-on-surface-variant font-bold uppercase tracking-widest text-sm">Synchronizing SLA Data...</span>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <script>
+    initLayout('sla');
+
+    async function loadSla() {
+        const el = document.getElementById('sla-body');
+        try {
+            const [breached, escalated, rules] = await Promise.all([
+                api.getBreached(),
+                api.getSlaEscalated(),
+                api.getSlaRules()
+            ]);
+
+            el.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <div class="bg-error/5 border border-error/10 rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="material-symbols-outlined text-error text-xl">warning</span>
+                            <span class="text-[10px] font-bold text-error uppercase tracking-widest">Active Breaches</span>
+                        </div>
+                        <div class="text-4xl font-extrabold font-headline text-error">${breached.length}</div>
+                        <div class="text-[10px] text-error/70 font-bold uppercase tracking-tighter mt-1">SLA deadline passed</div>
+                    </div>
+                    <div class="bg-tertiary/5 border border-tertiary/20 rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="material-symbols-outlined text-tertiary text-xl">trending_up</span>
+                            <span class="text-[10px] font-bold text-tertiary uppercase tracking-widest">Escalated</span>
+                        </div>
+                        <div class="text-4xl font-extrabold font-headline text-tertiary">${escalated.length}</div>
+                        <div class="text-[10px] text-tertiary/80 font-bold uppercase tracking-tighter mt-1">Supervisor / branch review</div>
+                    </div>
+                </div>
+
+                <!-- Breached Section -->
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden mb-12">
+                    <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sm text-primary">gavel</span>
+                        <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Breached & Critical Thresholds</h2>
+                    </div>
+                    
+                    ${breached.length ? `
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-surface-container-low/30 border-b border-outline-variant/10">
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Identity</th>
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Narrative</th>
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Tier</th>
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Compliance</th>
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Report Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-outline-variant/5">
+                                    ${breached.map(c => `
+                                        <tr onclick="location.href='/complaint-detail?id=${c.id}'" class="hover:bg-error/[0.02] cursor-pointer transition-colors group">
+                                            <td class="px-6 py-4">
+                                                <span class="data-font text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/5 rounded border border-primary/10">#${c.ticketNumber || 'N/A'}</span>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm font-bold text-on-surface group-hover:text-error transition-colors">${c.title}</td>
+                                            <td class="px-6 py-4">${severityBadge(c.severity)}</td>
+                                            <td class="px-6 py-4">${slaBadge(c.slaStatus)}</td>
+                                            <td class="px-6 py-4 text-[10px] text-on-surface-variant font-bold font-mono">${formatDateShort(c.createdAt)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    ` : `
+                        <div class="p-12 text-center text-on-surface-variant italic">
+                            <span class="material-symbols-outlined text-4xl mb-2 opacity-20 block">verified_user</span>
+                            Perfect Adherence: All managed events are within contractual SLA limits.
+                        </div>
+                    `}
+                </div>
+
+                <!-- Escalated cases -->
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-tertiary/15 overflow-hidden mb-12">
+                    <div class="px-6 py-4 bg-tertiary/5 border-b border-outline-variant/10 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sm text-tertiary">trending_up</span>
+                        <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Escalated complaints (SLA / policy)</h2>
+                    </div>
+                    ${escalated.length ? `
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-surface-container-low/30 border-b border-outline-variant/10">
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Identity</th>
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Narrative</th>
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Tier</th>
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Status</th>
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Channel</th>
+                                        <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Report Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-outline-variant/5">
+                                    ${escalated.map(c => `
+                                        <tr onclick="location.href='/complaint-detail?id=${c.id}'" class="hover:bg-tertiary/[0.03] cursor-pointer transition-colors group">
+                                            <td class="px-6 py-4">
+                                                <span class="data-font text-[10px] font-bold text-primary px-2 py-0.5 bg-primary/5 rounded border border-primary/10">#${c.ticketNumber || 'N/A'}</span>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm font-bold text-on-surface group-hover:text-tertiary transition-colors">${c.title}</td>
+                                            <td class="px-6 py-4">${severityBadge(c.severity)}</td>
+                                            <td class="px-6 py-4">${statusBadge(c.status)}</td>
+                                            <td class="px-6 py-4 text-[10px] font-mono uppercase text-on-surface-variant">${c.channel || '-'}</td>
+                                            <td class="px-6 py-4 text-[10px] text-on-surface-variant font-bold font-mono">${formatDateShort(c.createdAt)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    ` : `
+                        <div class="p-12 text-center text-on-surface-variant italic">
+                            <span class="material-symbols-outlined text-4xl mb-2 opacity-20 block">check_circle</span>
+                            No escalated cases in the registry.
+                        </div>
+                    `}
+                </div>
+
+                <!-- Configuration Rules -->
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                    <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sm text-primary">settings_applications</span>
+                        <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">SLA Protocol Parameters</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="bg-surface-container-low/30 border-b border-outline-variant/10">
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Protocol ID</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Trigger Tier</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Temporal Limit</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Notification %</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Scope</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/5">
+                                ${rules.map(r => `
+                                    <tr>
+                                        <td class="px-6 py-4 text-[10px] font-bold font-mono text-on-surface-variant">PROC_SLA_${r.id}</td>
+                                        <td class="px-6 py-4">${severityBadge(r.severity)}</td>
+                                        <td class="px-6 py-4 text-sm font-extrabold text-on-surface italic">${r.slaHours} HR LIMIT</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-12 h-1 bg-surface-container rounded-full overflow-hidden">
+                                                    <div class="h-full bg-primary" style="width: ${r.warnAtPercent}%"></div>
+                                                </div>
+                                                <span class="text-[10px] font-bold text-on-surface-variant">${r.warnAtPercent}%</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-[10px] font-extrabold text-on-surface uppercase tracking-tighter">${r.productType ? productLabel(r.productType) : 'Global Registry'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        } catch(err) {
+            el.innerHTML = `<div class="p-8 bg-error/5 text-error font-bold uppercase tracking-widest text-xs rounded-xl border border-error/10">SLA Registry Access Denied: ${err.message}</div>`;
+        }
+    }
+    loadSla();
+    </script>
+</body>
+</html>

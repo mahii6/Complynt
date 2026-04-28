@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html class="light" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Agent Registry | Complynt')}"></head>
+<body class="bg-surface font-body text-on-surface antialiased">
+    <main class="ml-64 pt-20 p-8 min-h-screen">
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold font-headline tracking-tight text-on-background">Personnel Registry</h1>
+            <p class="text-on-surface-variant text-sm mt-1 italic opacity-80">Managing operational units and case distribution vectors.</p>
+        </div>
+
+        <div id="agents-body">
+            <div class="flex items-center justify-center h-[50vh]">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <span class="ml-4 text-on-surface-variant font-bold uppercase tracking-widest text-sm">Synchronizing Personnel Data...</span>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <script>
+    initLayout('agents');
+
+    async function loadAgents() {
+        const el = document.getElementById('agents-body');
+        try {
+            const res = await api.getAgents();
+            
+            el.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                    <div class="bg-surface-container-lowest border border-outline-variant/10 rounded-xl p-6 shadow-sm">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="material-symbols-outlined text-primary text-xl">badge</span>
+                            <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Active Units</span>
+                        </div>
+                        <div class="text-4xl font-extrabold font-headline text-on-background">${res.length}</div>
+                        <div class="text-[10px] text-on-surface-variant/70 font-bold uppercase tracking-tighter mt-1">Operational Personnel</div>
+                    </div>
+                </div>
+
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+                    <div class="px-6 py-4 bg-surface-container-low/50 border-b border-outline-variant/10 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sm text-primary">person_search</span>
+                        <h2 class="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Managed Agent Directory</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="bg-surface-container-low/30 border-b border-outline-variant/10">
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Personnel ID</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Identifier</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Operational Role</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Network Index</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Registry Status</th>
+                                    <th class="px-6 py-3 text-[10px] font-extrabold text-on-surface-variant uppercase tracking-widest">Case Vectors</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/5">
+                                ${res.map(a => `
+                                    <tr class="hover:bg-primary/[0.02] transition-colors group">
+                                        <td class="px-6 py-4">
+                                            <span class="data-font text-[10px] font-bold text-on-surface-variant px-2 py-0.5 bg-surface-container rounded border border-outline-variant/10">AGT-${a.id.toString().padStart(4,'0')}</span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">${a.name.charAt(0)}</div>
+                                                <span class="text-sm font-bold text-on-surface">${a.name}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">${a.role}</td>
+                                        <td class="px-6 py-4 text-xs font-mono italic text-on-surface-variant">${a.email}</td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-extrabold uppercase tracking-widest rounded-full border border-primary/10">Active</span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <a href="/complaints" class="flex items-center gap-1 text-[10px] font-bold text-primary uppercase tracking-widest hover:translate-x-1 transition-transform">
+                                                Queue Status <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        } catch(err) {
+            el.innerHTML = `<div class="p-8 bg-error/5 text-error font-bold uppercase tracking-widest text-xs rounded-xl border border-error/10">Personnel Registry Failure: ${err.message}</div>`;
+        }
+    }
+
+    loadAgents();
+    </script>
+</body>
+</html>
